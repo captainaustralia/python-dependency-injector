@@ -3312,8 +3312,6 @@ cdef class ContextTaskScopeSingleton(ContextLocalSingleton):
                 "To install a backport run \"pip install contextvars\"."
             )
         ctx_var = kwargs.get("task_ctx_var")
-        if not ctx_var:
-            raise Exception("Dude you must give ContextVar from your task task_ctx_var=YourСontextVar")
         super(ContextTaskScopeSingleton, self).__init__(provides, *args, **kwargs)
         self._storage = contextvars.ContextVar(ctx_var.get(), default=self._none)
 
