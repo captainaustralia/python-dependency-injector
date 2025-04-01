@@ -17,6 +17,7 @@ import sys
 import threading
 import warnings
 from configparser import ConfigParser as IniConfigParser
+import uuid
 
 try:
     from inspect import _is_coroutine_mark as _is_coroutine_marker
