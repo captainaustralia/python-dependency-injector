@@ -3321,7 +3321,7 @@ cdef class ContextTaskScopeSingleton(ContextLocalSingleton):
             )
         if not task_ctx_var:
             raise Exception("Dude you must give ContextVar from your task")
-        super(ContextTaskScopeSingleton, self).__init__(provides, *args, **kwargs)
+        super(ContextTaskScopeSingleton, self).__init__(task_ctx_var, provides, *args, **kwargs)
         self._storage = contextvars.ContextVar(task_ctx_var.get(), default=self._none)
 
     cpdef object _provide(self, tuple args, dict kwargs):
