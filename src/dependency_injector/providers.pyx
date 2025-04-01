@@ -3313,9 +3313,9 @@ cdef class ContextTaskScopeSingleton(ContextLocalSingleton):
             )
         ctx_var = kwargs.get("task_ctx_var")
         if not ctx_var:
-            raise Exception("Dude you must give ContextVar from your task")
+            raise Exception("Dude you must give ContextVar from your task task_ctx_var=YourСontextVar")
         super(ContextTaskScopeSingleton, self).__init__(provides, *args, **kwargs)
-        self._storage = contextvars.ContextVar(task_ctx_var.get(), default=self._none)
+        self._storage = contextvars.ContextVar(ctx_var.get(), default=self._none)
 
     cpdef object _provide(self, tuple args, dict kwargs):
         """Return single instance."""
