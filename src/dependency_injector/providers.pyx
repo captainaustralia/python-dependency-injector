@@ -3283,13 +3283,6 @@ cdef class ContextLocalSingleton(BaseSingleton):
 cdef class ContextTaskScopeSingleton(ContextLocalSingleton):
     """Context-local singleton provides single objects in scope of a context.
 
-     .. py:attribute:: task_ctx_var
-
-        If provided type is defined, provider checks that providing class is
-        its subclass.
-
-        :type: contextvars.ContextVar | None
-
     .. py:attribute:: provided_type
 
         If provided type is defined, provider checks that providing class is
@@ -3307,9 +3300,8 @@ cdef class ContextTaskScopeSingleton(ContextLocalSingleton):
     """
     _none = object()
 
-    def __init__(self, task_ctx_var=None, provides=None, *args, **kwargs):
+    def __init__(self, provides=None, *args, **kwargs):
         """Initializer.
-        :param task_ctx_var: Task scope ctx var.
         :param provides: Provided type.
         :type provides: type
         """
@@ -3319,9 +3311,10 @@ cdef class ContextTaskScopeSingleton(ContextLocalSingleton):
                 "requires Python 3.7 or a backport of contextvars. "
                 "To install a backport run \"pip install contextvars\"."
             )
-        if not task_ctx_var:
+        ctx_var = kwargs.get("task_ctx_var")
+        if not ctx_var:
             raise Exception("Dude you must give ContextVar from your task")
-        super(ContextTaskScopeSingleton, self).__init__(task_ctx_var, provides, *args, **kwargs)
+        super(ContextTaskScopeSingleton, self).__init__(provides, *args, **kwargs)
         self._storage = contextvars.ContextVar(task_ctx_var.get(), default=self._none)
 
     cpdef object _provide(self, tuple args, dict kwargs):
