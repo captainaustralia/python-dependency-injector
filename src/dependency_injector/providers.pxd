@@ -195,6 +195,9 @@ cdef class ContextLocalSingleton(BaseSingleton):
 
     cpdef object _provide(self, tuple args, dict kwargs)
 
+cdef class ContextTaskScopeSingleton(ContextLocalSingleton):
+    pass
+
 
 cdef class DelegatedThreadLocalSingleton(ThreadLocalSingleton):
     pass

@@ -3280,6 +3280,68 @@ cdef class ContextLocalSingleton(BaseSingleton):
             self._storage.set(instance)
             future_result.set_result(instance)
 
+cdef class ContextTaskScopeSingleton(ContextLocalSingleton):
+    """Context-local singleton provides single objects in scope of a context.
+
+     .. py:attribute:: task_ctx_var
+
+        If provided type is defined, provider checks that providing class is
+        its subclass.
+
+        :type: contextvars.ContextVar
+
+    .. py:attribute:: provided_type
+
+        If provided type is defined, provider checks that providing class is
+        its subclass.
+
+        :type: type | None
+
+    .. py:attribute:: cls
+       :noindex:
+
+        Class that provides object.
+        Alias for :py:attr:`provides`.
+
+        :type: type
+    """
+    _none = object()
+
+    def __init__(self, task_ctx_var, provides=None, *args, **kwargs):
+        """Initializer.
+        :param task_ctx_var: Task scope ctx var.
+        :param provides: Provided type.
+        :type provides: type
+        """
+        if not contextvars:
+            raise RuntimeError(
+                "Contextvars library not found. This provider "
+                "requires Python 3.7 or a backport of contextvars. "
+                "To install a backport run \"pip install contextvars\"."
+            )
+
+        super(ContextTaskScopeSingleton, self).__init__(provides, *args, **kwargs)
+        self._storage = contextvars.ContextVar(task_ctx_var.get(), default=self._none)
+
+    cpdef object _provide(self, tuple args, dict kwargs):
+        """Return single instance."""
+        cdef object instance
+
+        instance = self._storage.get()
+
+        if instance is self._none:
+            instance = __factory_call(self._instantiator, args, kwargs)
+
+            if __is_future_or_coroutine(instance):
+                future_result = asyncio.Future()
+                instance = asyncio.ensure_future(instance)
+                instance.add_done_callback(functools.partial(self._async_init_instance, future_result))
+                self._storage.set(future_result)
+                return future_result
+
+            self._storage.set(instance)
+
+        return instance
 
 cdef class DelegatedThreadLocalSingleton(ThreadLocalSingleton):
     """Delegated thread-local singleton is injected "as is".
