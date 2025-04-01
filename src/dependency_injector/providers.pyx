@@ -3313,6 +3313,10 @@ cdef class ContextTaskScopeSingleton(ContextLocalSingleton):
                 "To install a backport run \"pip install contextvars\"."
             )
         ctx_var = kwargs.get("task_ctx_var", None)
+
+        if ctx_var:
+            kwargs.pop("task_ctx_var")
+
         super(ContextTaskScopeSingleton, self).__init__(provides, *args, **kwargs)
         self._storage = contextvars.ContextVar(ctx_var.get() if ctx_var else str(uuid.uuid4()), default=self._none)
 
