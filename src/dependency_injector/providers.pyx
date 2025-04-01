@@ -3313,7 +3313,7 @@ cdef class ContextTaskScopeSingleton(ContextLocalSingleton):
             )
         ctx_var = kwargs.get("task_ctx_var", None)
         super(ContextTaskScopeSingleton, self).__init__(provides, *args, **kwargs)
-        self._storage = contextvars.ContextVar(ctx_var.get() if ctx_var, default=self._none)
+        self._storage = contextvars.ContextVar(ctx_var.get() if ctx_var else str(uuid.uuid4()), default=self._none)
 
     cpdef object _provide(self, tuple args, dict kwargs):
         """Return single instance."""
